@@ -273,7 +273,7 @@
         start: function(path) {
           return timer.TIMES[path] = now();
         },
-        stop: function(path) {
+        stop: function(path, type) {
           var duration;
           if (timer.TIMES[path] == null) {
             log.error("Timer " + path + " ended without having been started");
@@ -281,7 +281,8 @@
           }
           duration = now() - timer.TIMES[path];
           timer.TIMES[path] = void 0;
-          return timer.send(path, duration);
+          var type = type ? type : null
+          return timer.send(path, duration, type);
         },
         stopwatch: function(prefix, start) {
           var last, _now;
@@ -358,7 +359,7 @@
               characterData: false
             }
             watch.OBSERVERS[path] = new MutationObserver(function (mutations) {
-              timer.stop(path)
+              timer.stop(path, 'timer')
               timer.start(path)
             })
             timer.start(path)
