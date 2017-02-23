@@ -367,7 +367,7 @@
           }
         },
         stop: function(path) {
-          if (watch.OBSERVERS[path] !== null) {
+          if (watch.OBSERVERS[path]) {
             watch.OBSERVERS[path].disconnect();
             watch.OBSERVERS[path] = void 0;
           }
