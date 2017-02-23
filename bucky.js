@@ -208,7 +208,7 @@
       }
     };
     makeClient = function(prefix) {
-      var buildPath, count, exports, nextMakeClient, requests, send, sendPagePerformance, sentPerformanceData, timer, val;
+      var buildPath, count, exports, nextMakeClient, requests, send, sendPagePerformance, sentPerformanceData, timer, watch, val;
       if (prefix == null) {
         prefix = '';
       }
@@ -345,6 +345,32 @@
           count = 1;
         }
         return send(path, count, 'counter');
+      };
+      watch = {
+        OBSERVERS: {},
+        start: function (id, path, observerOptions) {
+          if (typeof MutationObserver === 'function') {
+            var element = document.getElementById(id)
+            var baseOptions = {
+              childList: true,
+              subtree: true,
+              attributes: false,
+              characterData: false
+            }
+            watch.OBSERVERS[path] = new MutationObserver(function (mutations) {
+              timer.stop(path)
+              timer.start(path)
+            })
+            timer.start(path)
+            watch.OBSERVERS[path].observe(element, baseOptions)
+          }
+        },
+        stop: function(path) {
+          if (watch.OBSERVERS[path] !== null) {
+            watch.OBSERVERS[path].disconnect();
+            watch.OBSERVERS[path] = void 0;
+          }
+        }
       };
       sentPerformanceData = false;
       sendPagePerformance = function(path) {
@@ -580,6 +606,7 @@
         send: send,
         count: count,
         timer: timer,
+        watch: watch,
         now: now,
         requests: requests,
         sendPagePerformance: sendPagePerformance,
