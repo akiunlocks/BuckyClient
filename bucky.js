@@ -1,22 +1,11 @@
 (function() {
-  var XMLHttpRequest, exportDef, extend, initTime, isServer, log, now,
+  var exportDef, extend, initTime, log, now,
     __slice = [].slice;
 
-  isServer = (typeof module !== "undefined" && module !== null) && !(typeof window !== "undefined" && window !== null ? window.module : void 0);
-
-  if (isServer) {
-    XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
-    now = function() {
-      var time;
-      time = process.hrtime();
-      return (time[0] + time[1] / 1e9) * 1000;
-    };
-  } else {
-    now = function() {
-      var _ref, _ref1;
-      return (_ref = (_ref1 = window.performance) != null ? typeof _ref1.now === "function" ? _ref1.now() : void 0 : void 0) != null ? _ref : +(new Date);
-    };
-  }
+  now = function() {
+    var _ref, _ref1;
+    return (_ref = (_ref1 = window.performance) != null ? typeof _ref1.now === "function" ? _ref1.now() : void 0 : void 0) != null ? _ref : +(new Date);
+  };
 
   initTime = +(new Date);
 
@@ -61,22 +50,20 @@
       active: true
     };
     tagOptions = {};
-    if (!isServer) {
-      $tag = typeof document.querySelector === "function" ? document.querySelector('[data-bucky-host],[data-bucky-page],[data-bucky-requests]') : void 0;
-      if ($tag) {
-        tagOptions = {
-          host: $tag.getAttribute('data-bucky-host'),
-          pagePerformanceKey: $tag.getAttribute('data-bucky-page'),
-          requestsKey: $tag.getAttribute('data-bucky-requests')
-        };
-        _ref = ['pagePerformanceKey', 'requestsKey'];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          key = _ref[_i];
-          if (((_ref1 = tagOptions[key]) != null ? _ref1.toString().toLowerCase() : void 0) === 'true' || tagOptions[key] === '') {
-            tagOptions[key] = true;
-          } else if (((_ref2 = tagOptions[key]) != null ? _ref2.toString().toLowerCase() : void 0) === 'false') {
-            tagOptions[key] = null;
-          }
+    $tag = typeof document.querySelector === "function" ? document.querySelector('[data-bucky-host],[data-bucky-page],[data-bucky-requests]') : void 0;
+    if ($tag) {
+      tagOptions = {
+        host: $tag.getAttribute('data-bucky-host'),
+        pagePerformanceKey: $tag.getAttribute('data-bucky-page'),
+        requestsKey: $tag.getAttribute('data-bucky-requests')
+      };
+      _ref = ['pagePerformanceKey', 'requestsKey'];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        key = _ref[_i];
+        if (((_ref1 = tagOptions[key]) != null ? _ref1.toString().toLowerCase() : void 0) === 'true' || tagOptions[key] === '') {
+          tagOptions[key] = true;
+        } else if (((_ref2 = tagOptions[key]) != null ? _ref2.toString().toLowerCase() : void 0) === 'false') {
+          tagOptions[key] = null;
         }
       }
     }
@@ -145,21 +132,17 @@
     };
     makeRequest = function(data) {
       var body, corsSupport, match, name, origin, req, sameOrigin, sendStart, val, _ref3;
-      corsSupport = isServer || (window.XMLHttpRequest && (window.XMLHttpRequest.defake || 'withCredentials' in new window.XMLHttpRequest()));
-      if (isServer) {
-        sameOrigin = true;
-      } else {
-        match = /^(https?:\/\/[^\/]+)/i.exec(options.host);
-        if (match) {
-          origin = match[1];
-          if (origin === ("" + document.location.protocol + "//" + document.location.host)) {
-            sameOrigin = true;
-          } else {
-            sameOrigin = false;
-          }
-        } else {
+      corsSupport = window.XMLHttpRequest && (window.XMLHttpRequest.defake || 'withCredentials' in new window.XMLHttpRequest());
+      match = /^(https?:\/\/[^\/]+)/i.exec(options.host);
+      if (match) {
+        origin = match[1];
+        if (origin === ("" + document.location.protocol + "//" + document.location.host)) {
           sameOrigin = true;
+        } else {
+          sameOrigin = false;
         }
+      } else {
+        sameOrigin = true;
       }
       sendStart = now();
       body = '';

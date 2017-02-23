@@ -1,15 +1,5 @@
-isServer = module? and not window?.module
-
-if isServer
-  {XMLHttpRequest} = require('xmlhttprequest')
-
-  now = ->
-    time = process.hrtime()
-    (time[0] + time[1] / 1e9) * 1000
-
-else
-  now = ->
-    window.performance?.now?() ? (+new Date)
+now = ->
+  window.performance?.now?() ? (+new Date)
 
 # This is used if we can't get the navigationStart time from
 # window.performance
@@ -65,23 +55,22 @@ exportDef = ->
     active: true
 
   tagOptions = {}
-  if not isServer
-    $tag = document.querySelector?('[data-bucky-host],[data-bucky-page],[data-bucky-requests]')
-    if $tag
-      tagOptions = {
-        host: $tag.getAttribute('data-bucky-host')
+  $tag = document.querySelector?('[data-bucky-host],[data-bucky-page],[data-bucky-requests]')
+  if $tag
+    tagOptions = {
+      host: $tag.getAttribute('data-bucky-host')
 
-        # These are to allow you to send page peformance data without having to manually call
-        # the methods.
-        pagePerformanceKey: $tag.getAttribute('data-bucky-page')
-        requestsKey: $tag.getAttribute('data-bucky-requests')
-      }
+      # These are to allow you to send page peformance data without having to manually call
+      # the methods.
+      pagePerformanceKey: $tag.getAttribute('data-bucky-page')
+      requestsKey: $tag.getAttribute('data-bucky-requests')
+    }
 
-      for key in ['pagePerformanceKey', 'requestsKey']
-        if tagOptions[key]?.toString().toLowerCase() is 'true' or tagOptions[key] is ''
-          tagOptions[key] = true
-        else if tagOptions[key]?.toString().toLowerCase() is 'false'
-          tagOptions[key] = null
+    for key in ['pagePerformanceKey', 'requestsKey']
+      if tagOptions[key]?.toString().toLowerCase() is 'true' or tagOptions[key] is ''
+        tagOptions[key] = true
+      else if tagOptions[key]?.toString().toLowerCase() is 'false'
+        tagOptions[key] = null
    
   options = extend {}, defaults, tagOptions
     
@@ -154,25 +143,22 @@ exportDef = ->
       maxTimeout = setTimeout flush, options.maxInterval
 
   makeRequest = (data) ->
-    corsSupport = isServer or (window.XMLHttpRequest and (window.XMLHttpRequest.defake or 'withCredentials' of new window.XMLHttpRequest()))
+    corsSupport = window.XMLHttpRequest and (window.XMLHttpRequest.defake or 'withCredentials' of new window.XMLHttpRequest())
 
-    if isServer
-      sameOrigin = true
-    else
-      match = /^(https?:\/\/[^\/]+)/i.exec options.host
+    match = /^(https?:\/\/[^\/]+)/i.exec options.host
 
-      if match
-        # FQDN
+    if match
+      # FQDN
 
-        origin = match[1]
-        if origin is "#{ document.location.protocol }//#{ document.location.host }"
-          sameOrigin = true
-        else
-          sameOrigin = false
-      else
-        # Relative URL
-        
+      origin = match[1]
+      if origin is "#{ document.location.protocol }//#{ document.location.host }"
         sameOrigin = true
+      else
+        sameOrigin = false
+    else
+      # Relative URL
+      
+      sameOrigin = true
 
     sendStart = now()
   
